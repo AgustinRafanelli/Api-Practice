@@ -1,31 +1,7 @@
 import { Document, Schema, model } from "mongoose";
-
-interface Currency {
-  name: string;
-  identifier: string;
-}
-
-interface Account {
-  currency: Currency;
-  amount?: number;
-}
-
-interface Transaction {
-  alias?: string;
-  amount: number;
-  cbu?: number;
-  currency: Currency;
-  date: Date;
-}
-
-interface User {
-  name: string;
-  pin: number;
-  cbu: number;
-  alias: string;
-  accounts: Account[];
-  transactions: Transaction[];
-}
+import { User } from "../interfaces";
+import Counter from "./Counter";
+import { createCBU } from "../utils/cbu";
 
 interface UserDocument extends Document, User {}
 
@@ -34,9 +10,21 @@ const UserSchema = new Schema<UserDocument>({
     type: String,
     required: true,
   },
-  cbu: {
-    type: Number,
+  surname: {
+    type: String,
     required: true,
+  },
+  dni: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  clientId: {
+    type: Number,
+    unique: true,
+  },
+  cbu: {
+    type: String,
     unique: true,
   },
   alias: {
@@ -53,18 +41,15 @@ const UserSchema = new Schema<UserDocument>({
       currency: {
         name: {
           type: String,
-          require: true,
+          required: true,
         },
         identifier: {
           type: String,
-          require: true,
+          required: true,
         },
-        require: true,
-        unique: true,
       },
       amount: {
         type: Number,
-        required: true,
         default: 0,
       },
     },
@@ -76,25 +61,45 @@ const UserSchema = new Schema<UserDocument>({
         type: Number,
         required: true,
       },
-      cbu: Number,
+      cbu: String,
       currency: {
         name: {
           type: String,
-          require: true,
+          required: true,
         },
         identifier: {
           type: String,
-          require: true,
+          required: true,
         },
-        require: true,
       },
-      date:{
-        default: Date.now()
-      }
+      date: {
+        type: Date,
+        default: Date.now(),
+      },
+    },
+    {
+      default: [],
     },
   ],
 });
 
+UserSchema.pre("save", async function (next) {
+  const doc = this as UserDocument;
+
+  if (doc.isNew) {
+    const counter = await Counter.findByIdAndUpdate(
+      { _id: "clientId" },
+      { $inc: { sequenceValue: 1 } },
+      { new: true, upsert: true }
+    );
+
+    doc.clientId = counter.sequenceValue;
+    doc.cbu = createCBU(counter.sequenceValue);
+  }
+
+  next();
+});
+
 const UserModel = model<UserDocument>("User", UserSchema);
 
-export { UserModel, UserDocument, User, Account, Transaction, Currency };
+export { UserModel, UserDocument };
