@@ -1,18 +1,16 @@
 import express from "express";
+import connectDB from "./config/db";
+
 const app = express();
-import mongoose from "mongoose";
-const port = 3000;
-mongoose
-  .connect("mongodb://127.0.0.1/manteca")
-  .catch((error) => console.log(error));
-
-import Models  from "./db"
-
+const PORT = process.env.PORT || 3000;
+app.use(express.json());
+connectDB()
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.listen(port, () => {
-  return console.log(`Express is listening at http://localhost:${port}`);
+
+app.listen(PORT, () => {
+  return console.log(`Express is listening at http://localhost:${PORT}`);
 });
