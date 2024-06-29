@@ -23,6 +23,7 @@ interface User {
   clientId?: number;
   pin: number;
   cbu?: string;
+  password: string;
   alias: string;
   accounts: Account[];
   transactions: Transaction[];
