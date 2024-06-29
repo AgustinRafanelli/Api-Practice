@@ -3,6 +3,7 @@ import { User } from "../interfaces";
 import jwt from "jsonwebtoken";
 
 interface AuthenticatedRequest extends Request {
+  clientId: number;
   user?: User;
 }
 
@@ -19,7 +20,7 @@ const authenticateToken = (
 
   try {
     const decoded = jwt.verify(token, process.env.JWT || "manteca"); 
-    req.user = decoded;
+    req.clientId = decoded.clientId;
     next();
   } catch (error) {
     res.status(400).json({ message: "Invalid token" });

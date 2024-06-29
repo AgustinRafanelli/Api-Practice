@@ -29,23 +29,15 @@ const getUser = async (req: Request, res: Response) => {
 const getUserBalance = async (req: AuthenticatedRequest, res: Response) => {
   const { dolar } = req.query;
   try {
-    if (!req.user || !req.user.clientId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    const user = await UserModel.findOne({ clientId: req.user.clientId });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
     if (!dolar) {
       res.json({
-        currency: user.accounts[0].currency.identifier,
-        balance: user.accounts[0].amount,
+        currency: req.user.accounts[0].currency.identifier,
+        balance: req.user.accounts[0].amount,
       });
     } else {
       res.json({
-        currency: user.accounts[1].currency.identifier,
-        balance: user.accounts[1].amount,
+        currency: req.user.accounts[1].currency.identifier,
+        balance: req.user.accounts[1].amount,
       });
     }
   } catch (error) {
@@ -55,16 +47,8 @@ const getUserBalance = async (req: AuthenticatedRequest, res: Response) => {
 
 const getUserPin = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    if (!req.user || !req.user.clientId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    const user = await UserModel.findOne({ clientId: req.user.clientId });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
     res.json({
-      pin: user.pin,
+      pin: req.user.pin,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -73,16 +57,8 @@ const getUserPin = async (req: AuthenticatedRequest, res: Response) => {
 
 const getUserAlias = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    if (!req.user || !req.user.clientId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    const user = await UserModel.findOne({ clientId: req.user.clientId });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
     res.json({
-      pin: user.alias,
+      alias: req.user.alias,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -91,16 +67,8 @@ const getUserAlias = async (req: AuthenticatedRequest, res: Response) => {
 
 const getUserCBU = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    if (!req.user || !req.user.clientId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    const user = await UserModel.findOne({ clientId: req.user.clientId });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
     res.json({
-      pin: user.cbu,
+      cbu: req.user.cbu,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

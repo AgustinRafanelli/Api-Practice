@@ -8,14 +8,15 @@ import {
   getUserCBU,
 } from "../controllers/userController";
 import { authenticateToken } from "../middleware/auth";
+import { getUserFromRequest } from "../helpers/authHelper";
 
 const router = Router();
 
 router.get("/users", getUsers);
 router.get("/user", getUser);
-router.get("/user/balance", authenticateToken, getUserBalance);
-router.get("/user/alias", authenticateToken, getUserAlias);
-router.get("/user/pin", authenticateToken, getUserPin);
-router.get("/user/cbu", authenticateToken, getUserCBU);
+router.get("/user/balance", authenticateToken, getUserFromRequest, getUserBalance);
+router.get("/user/alias", authenticateToken, getUserFromRequest, getUserAlias);
+router.get("/user/pin", authenticateToken, getUserFromRequest, getUserPin);
+router.get("/user/cbu", authenticateToken, getUserFromRequest, getUserCBU);
 
 export default router;
