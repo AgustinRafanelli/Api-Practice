@@ -12,17 +12,20 @@ const pinAuth = [
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const { currency, amount, pin } = req.body;
+    const currencyId = Number(req.body.currencyId);
+    const amount = Number(req.body.amount);
+    const pin = Number(req.body.pin);
     try {
       if (
-        (req.body.currencyId == 0 || req.body.currencyId == 1) &&
-        currency == CURRENCIES[req.body.currencyId].identifier &&
-        amount > PINLIMIT[req.body.currencyId]
+        (currencyId == 0 || currencyId == 1) &&
+        amount > PINLIMIT[currencyId]
       ) {
         if (!pin) {
-          return res
-            .status(401)
-            .json({ message: "Unauthorized, pin needs to be provided" });
+          return res.status(401).json({
+            message: `Unauthorized, pin needs to be provided for transactions highter than ${
+              CURRENCIES[currencyId].identifier + " " + PINLIMIT[currencyId]
+            }`,
+          });
         }
         if (pin != req.user.pin) {
           return res.status(401).json({ message: "Unauthorized, wrong pin" });

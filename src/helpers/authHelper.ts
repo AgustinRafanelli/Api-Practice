@@ -1,6 +1,7 @@
 import { Response, NextFunction } from "express";
-import { UserModel } from "../models/User";
+import { UserDocument, UserModel } from "../models/User";
 import { AuthenticatedRequest } from "../middleware/auth";
+import { User } from "../interfaces";
 
 const getUserFromRequest = async (
   req: AuthenticatedRequest,
@@ -23,5 +24,15 @@ const getUserFromRequest = async (
   }
 };
 
+const matchPassword = async (
+  res: Response,
+  user: UserDocument,
+  password: string
+) => {
+  const isMatch = await user.comparePassword(password);
+  if (!isMatch) {
+    return res.status(400).json({ message: "Invalid credentials" });
+  }
+};
 
-export { getUserFromRequest };
+export { getUserFromRequest, matchPassword };

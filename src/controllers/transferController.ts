@@ -19,10 +19,14 @@ const handleTransfer = async (
       .status(404)
       .json({ message: "Target user do not belong to this bank" });
   }
+  if (amount <= 0) {
+    return res
+      .status(400)
+      .json({ message: "The transaction amount must be greater than 0" });
+  }
   if (req.user.accounts[currencyId].amount < amount) {
     return res.status(400).json({ message: "Insufficient funds" });
   }
-
   const transaction: Transaction = {
     [identifierField]: targetUser[identifierField],
     amount: -Number(amount),
@@ -68,7 +72,7 @@ const handleTransfer = async (
       }
     );
 
-    res.json({ message: "Transaction successful" });
+    res.json({ message: "Transaction successful", transaction });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -82,9 +86,10 @@ const postTransferByAlias = [
       return res.status(400).json({ errors: errors.array() });
     }
     const { alias, currencyId, amount } = req.body;
+    console.log(amount)
     await handleTransfer(alias, "alias", currencyId, amount, req, res);
   },
-];
+];  
 
 const postTransferByCBU = [
   body("cbu").isString().notEmpty(),

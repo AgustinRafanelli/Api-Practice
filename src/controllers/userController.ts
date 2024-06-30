@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { UserModel } from "../models/User";
 import { AuthenticatedRequest } from "../middleware/auth";
 import CURRENCIES from "../constants/currencies";
+import { body, validationResult } from "express-validator";
 
 const getUsers = async (req: Request, res: Response) => {
   try {
@@ -40,6 +41,48 @@ const getUserBalance = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
+const putUserBalance = [
+  body("currencyId").isNumeric().notEmpty(),
+  body("amount").isNumeric().notEmpty(),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { currencyId, amount } = req.body;
+    const newBalance = req.user.accounts[currencyId].amount + Number(amount);
+    if (newBalance < 0) {
+      return res.status(400).json({ message: "Insufficient funds" });
+    }
+    try {
+      const result = await UserModel.updateOne(
+        {
+          clientId: req.user.clientId,
+          "accounts.currency": CURRENCIES[currencyId],
+        },
+        {
+          $set: {
+            "accounts.$.amount": newBalance,
+          },
+          $push: {
+            transactions: {
+              amount: Number(amount),
+              currency: CURRENCIES[currencyId],
+            },
+          },
+        }
+      );
+      res.status(201).json({
+        message: amount > 0 ? "Deposit succsesful" : "Withdrawal succsesful",
+        currency: req.user.accounts[currencyId].currency.identifier,
+        newBalance: newBalance,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+];
+
 const getUserPin = async (req: AuthenticatedRequest, res: Response) => {
   try {
     res.json({
@@ -50,6 +93,31 @@ const getUserPin = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
+const putUserPin = [
+  body("pin").isNumeric().isLength({ min: 4, max: 4 }),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { pin } = req.body;
+    try {
+      const result = await UserModel.updateOne(
+        {
+          clientId: req.user.clientId,
+        },
+        {
+          $set: {
+            pin,
+          },
+        }
+      );
+      res.status(201).json({
+        message: "Update succsesful",
+        newPin: pin,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+];
+
 const getUserAlias = async (req: AuthenticatedRequest, res: Response) => {
   try {
     res.json({
@@ -59,6 +127,47 @@ const getUserAlias = async (req: AuthenticatedRequest, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+const putUserAlias = [
+  body("alias").isString(),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { alias } = req.body;
+    if (/\d/.test(alias)) {
+      return res
+        .status(400)
+        .json({ errors: "The new alias can't have numbers" });
+    }
+    const splitAlias = alias.split(".");
+    if (
+      splitAlias.length != 3 ||
+      splitAlias[0].length == 0 ||
+      splitAlias[1].length == 0 ||
+      splitAlias[3].length == 0
+    ) {
+      return res
+        .status(400)
+        .json({ errors: "The new alias can't have numbers" });
+    }
+    try {
+      const result = await UserModel.updateOne(
+        {
+          clientId: req.user.clientId,
+        },
+        {
+          $set: {
+            alias,
+          },
+        }
+      );
+      res.status(201).json({
+        message: "Update succsesful",
+        newAlias: alias,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+];
 
 const getUserCBU = async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -102,6 +211,9 @@ export {
   getUserBalance,
   getUserAlias,
   getUserPin,
+  putUserBalance,
+  putUserAlias,
+  putUserPin,
   getUserCBU,
   getUserTransactions,
 };
