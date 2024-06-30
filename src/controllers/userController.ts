@@ -142,7 +142,7 @@ const putUserAlias = [
       splitAlias.length != 3 ||
       splitAlias[0].length == 0 ||
       splitAlias[1].length == 0 ||
-      splitAlias[3].length == 0
+      splitAlias[2].length == 0
     ) {
       return res
         .status(400)

@@ -38,8 +38,8 @@ const authenticatePassword = [
       return res.status(400).json({ errors: errors.array() });
     }
     const user = await UserModel.findOne({ clientId: req.user.clientId });
+    await matchPassword(res, user, req.body.password);
     try {
-      matchPassword(res, user, req.body.password);
       next();
     } catch (error) {
       res.status(500).json({ message: error.message });

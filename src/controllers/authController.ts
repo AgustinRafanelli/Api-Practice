@@ -60,7 +60,7 @@ const loginUser = [
         return res.status(400).json({ message: "Invalid credentials" });
       }
 
-      matchPassword(res, user, password)
+      await matchPassword(res, user, password)
 
       const token = jwt.sign(
         { clientId: user.clientId },

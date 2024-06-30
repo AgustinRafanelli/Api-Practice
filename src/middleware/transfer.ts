@@ -18,7 +18,7 @@ const pinAuth = [
     try {
       if (
         (currencyId == 0 || currencyId == 1) &&
-        amount > PINLIMIT[currencyId]
+        (amount > PINLIMIT[currencyId] || -amount > PINLIMIT[currencyId])
       ) {
         if (!pin) {
           return res.status(401).json({
