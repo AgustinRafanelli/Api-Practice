@@ -1,22 +1,22 @@
 import { Router } from "express";
 import {
-  getUsers,
-  getUser,
   getUserBalance,
   getUserAlias,
   getUserPin,
   getUserCBU,
+  getUserTransactions,
 } from "../controllers/userController";
-import { authenticateToken } from "../middleware/auth";
-import { getUserFromRequest } from "../helpers/authHelper";
+import { pinAuth } from "../middleware/transfer"
+import transferRoutes from "./transferRoutes"
 
 const router = Router();
 
-router.get("/users", getUsers);
-router.get("/user", getUser);
-router.get("/user/balance", authenticateToken, getUserFromRequest, getUserBalance);
-router.get("/user/alias", authenticateToken, getUserFromRequest, getUserAlias);
-router.get("/user/pin", authenticateToken, getUserFromRequest, getUserPin);
-router.get("/user/cbu", authenticateToken, getUserFromRequest, getUserCBU);
+router.get("/balance", getUserBalance);
+router.get("/alias", getUserAlias);
+router.get("/pin", getUserPin);
+router.get("/cbu", getUserCBU);
+router.get("/transactions", getUserTransactions);
+
+router.use("/transfer", pinAuth, transferRoutes);
 
 export default router;

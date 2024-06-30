@@ -3,12 +3,12 @@ import { UserModel } from "../models/User";
 import jwt from "jsonwebtoken";
 import randomWords from "random-spanish-words";
 import { body, validationResult } from "express-validator";
-import CURRENCIES from "../constants/currencyes";
+import CURRENCIES from "../constants/currencies";
 
 const registerUser = [
   body("name").isString().notEmpty(),
   body("surname").isString().notEmpty(),
-  body("dni").isString().notEmpty(),
+  body("dni").isNumeric().notEmpty(),
   body("password").isString().isLength({ min: 8 }),
   async (req: Request, res: Response) => {
     const errors = validationResult(req);

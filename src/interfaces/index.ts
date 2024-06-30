@@ -13,7 +13,7 @@ interface Transaction {
   amount: number;
   cbu?: string;
   currency: Currency;
-  date: Date;
+  date?: Date;
 }
 
 interface User {
