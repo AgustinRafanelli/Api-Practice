@@ -47,6 +47,7 @@ Esta API permite gestionar usuarios y sus transacciones financieras. Incluye aut
 Para aprender su uso se genero documentacion de los endpoints https://documenter.getpostman.com/view/19427826/2sA3dviBew
 
 ## Estructura del Proyecto
+```
 .
 ├── config
 ├── src
@@ -65,6 +66,7 @@ Para aprender su uso se genero documentacion de los endpoints https://documenter
 ├── package.json
 ├── README.md
 └── tsconfig.json
+```
 
 ## Aclaraciones
 1. Como tenia que trabajar con CBUs busque como se componia. Todos los CBUs estan compuestos por el numero de entidad, que le puse `111` a nuestro banco ficticio, el numero de sucursal en el que esta registrado el usuario, que supuse una unica sucursal al ser un banco pequeino, y el numero de cliente o `clientId` en este caso.
