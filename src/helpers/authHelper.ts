@@ -24,15 +24,4 @@ const getUserFromRequest = async (
   }
 };
 
-const matchPassword = async (
-  res: Response,
-  user: UserDocument,
-  password: string
-) => {
-  const isMatch = await user.comparePassword(password);
-  if (!isMatch) {
-    return res.status(400).json({ message: "Invalid credentials" });
-  }
-};
-
-export { getUserFromRequest, matchPassword };
+export { getUserFromRequest };

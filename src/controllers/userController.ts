@@ -3,7 +3,6 @@ import { UserModel } from "../models/User";
 import { AuthenticatedRequest } from "../middleware/auth";
 import CURRENCIES from "../constants/currencies";
 import { body, validationResult } from "express-validator";
-import { matchPassword } from "../helpers/authHelper";
 import bcrypt from "bcrypt";
 
 const getUsers = async (req: Request, res: Response) => {
@@ -110,7 +109,7 @@ const putUserPin = [
           },
         }
       );
-      res.status(201).json({
+      res.status(200).json({
         message: "Update succsesful",
         newPin: pin,
       });
@@ -161,7 +160,7 @@ const putUserAlias = [
           },
         }
       );
-      res.status(201).json({
+      res.status(200).json({
         message: "Update succsesful",
         newAlias: alias,
       });
@@ -185,22 +184,28 @@ const getUserTransactions = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
-  const { count, currency } = req.query;
-  let transactions = req.user.transactions.reverse();
-  if (
-    currency == CURRENCIES[0].identifier ||
-    currency == CURRENCIES[1].identifier
-  ) {
+  const { limit = 10, page = 1, currencyId } = req.query;
+  const pageNumber = Number(page);
+  const limitNumber = Number(limit);
+
+  let transactions = req.user.transactions;
+  if (currencyId) {
     transactions = transactions.filter(
-      (transaction) => transaction.currency.identifier == currency
+      (transaction) => transaction.currency == CURRENCIES[Number(currencyId)]
     );
   }
-  if (count && transactions.length > Number(count)) {
-    transactions = transactions.slice(0, Number(count));
-  }
+  transactions = req.user.transactions.reverse();
+
+  const startIndex = (pageNumber - 1) * limitNumber;
+  const endIndex = pageNumber * limitNumber;
+
+  const paginatedTransactions = transactions.slice(startIndex, endIndex);
   try {
     res.json({
-      transactions: transactions,
+      totalTransactions: transactions.length,
+      currentPage: pageNumber,
+      totalPages: Math.ceil(transactions.length / limitNumber),
+      transactions: paginatedTransactions,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -209,17 +214,14 @@ const getUserTransactions = async (
 
 const putUserPassword = [
   body("newPassword").isString().isLength({ min: 8 }).notEmpty(),
-  ,
   async (req: AuthenticatedRequest, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
     const { newPassword } = req.body;
-
     try {
-      const user = await UserModel.findById(req.user.clientId);
+      const user = await UserModel.findOne({ clientId: req.user.clientId });
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(newPassword, salt);
       await user.save();

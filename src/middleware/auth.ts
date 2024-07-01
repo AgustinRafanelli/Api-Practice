@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { User } from "../interfaces";
 import jwt from "jsonwebtoken";
-import { matchPassword } from "../helpers/authHelper";
 import { UserModel } from "../models/User";
 import { body, validationResult } from "express-validator";
 
@@ -37,9 +36,12 @@ const authenticatePassword = [
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const user = await UserModel.findOne({ clientId: req.user.clientId });
-    await matchPassword(res, user, req.body.password);
     try {
+      const user = await UserModel.findOne({ clientId: req.user.clientId });
+      const isMatch = await user.comparePassword(req.body.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: "Invalid credentials" });
+      }
       next();
     } catch (error) {
       res.status(500).json({ message: error.message });

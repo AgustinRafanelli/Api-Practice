@@ -86,7 +86,6 @@ const postTransferByAlias = [
       return res.status(400).json({ errors: errors.array() });
     }
     const { alias, currencyId, amount } = req.body;
-    console.log(amount)
     await handleTransfer(alias, "alias", currencyId, amount, req, res);
   },
 ];  

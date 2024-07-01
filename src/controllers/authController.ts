@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 import randomWords from "random-spanish-words";
 import { body, validationResult } from "express-validator";
 import CURRENCIES from "../constants/currencies";
-import { matchPassword } from "../helpers/authHelper";
 
 const registerUser = [
   body("name").isString().notEmpty(),
@@ -60,7 +59,10 @@ const loginUser = [
         return res.status(400).json({ message: "Invalid credentials" });
       }
 
-      await matchPassword(res, user, password)
+      const isMatch = await user.comparePassword(password);
+      if (!isMatch) {
+        return res.status(400).json({ message: "Invalid credentials" });
+      }
 
       const token = jwt.sign(
         { clientId: user.clientId },
