@@ -8,6 +8,7 @@ import {
   putUserPin,
   getUserCBU,
   getUserTransactions,
+  putUserPassword
 } from "../controllers/userController";
 import { pinAuth } from "../middleware/transfer";
 import transferRoutes from "./transferRoutes";
@@ -23,6 +24,7 @@ router.get("/pin", getUserPin);
 router.put("/pin", authenticatePassword, putUserPin);
 router.get("/cbu", getUserCBU);
 router.get("/transactions", getUserTransactions);
+router.put("/password", authenticatePassword, putUserPassword);
 
 router.use("/transfer", pinAuth, transferRoutes);
 

@@ -3,6 +3,8 @@ import { UserModel } from "../models/User";
 import { AuthenticatedRequest } from "../middleware/auth";
 import CURRENCIES from "../constants/currencies";
 import { body, validationResult } from "express-validator";
+import { matchPassword } from "../helpers/authHelper";
+import bcrypt from "bcrypt";
 
 const getUsers = async (req: Request, res: Response) => {
   try {
@@ -205,6 +207,30 @@ const getUserTransactions = async (
   }
 };
 
+const putUserPassword = [
+  body("newPassword").isString().isLength({ min: 8 }).notEmpty(),
+  ,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { newPassword } = req.body;
+
+    try {
+      const user = await UserModel.findById(req.user.clientId);
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(newPassword, salt);
+      await user.save();
+
+      res.status(200).json({ message: "Password updated successfully" });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+];
+
 export {
   getUsers,
   getUser,
@@ -216,4 +242,5 @@ export {
   putUserPin,
   getUserCBU,
   getUserTransactions,
+  putUserPassword,
 };
