@@ -35,7 +35,15 @@ const registerUser = [
 
     try {
       const savedUser = await newUser.save();
-      res.status(201).json(savedUser);
+      res.status(201).json({
+        name: savedUser.name,
+        surname: savedUser.surname,
+        dni: savedUser.dni,
+        alias: savedUser.alias,
+        pin: savedUser.pin,
+        accounts: savedUser.accounts,
+        clientId: savedUser.clientId,
+      });
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
