@@ -5,6 +5,7 @@ import CURRENCIES from "../constants/currencies";
 import { body, validationResult } from "express-validator";
 import { Transaction } from "../interfaces";
 
+// clase transfer instanciando con el usuario y el targuet
 const handleTransfer = async (
   identifier: string,
   identifierField: "alias" | "cbu",
@@ -86,7 +87,12 @@ const postTransferByAlias = [
       return res.status(400).json({ errors: errors.array() });
     }
     const { alias, currencyId, amount } = req.body;
-    await handleTransfer(alias, "alias", currencyId, amount, req, res);
+    try{
+      const transaction = await handleTransfer(alias, "alias", currencyId, amount, req, res);
+      res.json({ message: "Transaction successful", transaction });
+    } catch(error){
+      res.status(error.status || 500).json({ message: error.message})
+    }
   },
 ];  
 
