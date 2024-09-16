@@ -38,6 +38,9 @@ export const handleTransfer = async (
     currency: CURRENCIES[currencyId],
   };
 
+  const session = await UserModel.startSession();
+  session.startTransaction();
+
   try {
     await UserModel.updateOne(
       {
@@ -70,8 +73,12 @@ export const handleTransfer = async (
         },
       }
     );
+    await session.commitTransaction();
     return transaction;
   } catch (error) {
+    await session.abortTransaction();
     throw new Error(error.message);
+  } finally {
+    session.endSession();
   }
 };
