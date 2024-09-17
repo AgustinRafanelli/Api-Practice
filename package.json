@@ -6,7 +6,7 @@
   "scripts": {
     "start": "tsc && nodemon dist/app.js",
     "lint": "npx eslint **/*.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -14,8 +14,11 @@
   "devDependencies": {
     "@eslint/js": "^9.5.0",
     "@types/express": "^4.17.1",
+    "@types/jest": "^29.5.13",
     "eslint": "^8.56.0",
     "globals": "^15.6.0",
+    "jest": "^29.7.0",
+    "mockingoose": "^2.16.2",
     "nodemon": "^3.1.4",
     "typescript": "^5.5.2",
     "typescript-eslint": "^7.14.1"
@@ -28,5 +31,30 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.4.4",
     "random-spanish-words": "^2.0.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json"
+    ],
+    "testMatch": [
+      "**/?(*.)+(spec|test).ts"
+    ],
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "json",
+      "lcov",
+      "text",
+      "clover"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "!src/**/*.d.ts",
+      "!src/**/main.ts"
+    ]
   }
 }

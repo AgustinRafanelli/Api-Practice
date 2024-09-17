@@ -2,7 +2,7 @@ import CURRENCIES from "../constants/currencies";
 import { Transaction } from "../interfaces";
 import { UserModel } from "../models/User";
 
-class HTTPError extends Error {
+export class HTTPError extends Error {
   constructor(message: string, public status: number) {
     super(message);
     this.name = "HTTPError";
@@ -12,7 +12,7 @@ class HTTPError extends Error {
 export const handleTransfer = async (
   identifier: string,
   identifierField: "alias" | "cbu",
-  currencyId: string,
+  currencyId: number,
   amount: number,
   user: any
 ) => {
@@ -21,10 +21,10 @@ export const handleTransfer = async (
     throw new HTTPError("Target user do not belong to this bank", 404);
   }
   if (amount <= 0) {
-    return new HTTPError("The transaction amount must be greater than 0", 400);
+    throw new HTTPError("The transaction amount must be greater than 0", 400);
   }
   if (user.accounts[currencyId].amount < amount) {
-    return new HTTPError("Insufficient funds", 400);
+    throw new HTTPError("Insufficient funds", 400);
   }
   const transaction: Transaction = {
     [identifierField]: targetUser[identifierField],
