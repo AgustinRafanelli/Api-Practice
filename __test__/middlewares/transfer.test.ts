@@ -35,6 +35,7 @@ describe("pinAuth Middleware", () => {
     jest.clearAllMocks();
   });
 
+  
   it("should call next if no validation errors and no pin required", async () => {
     (validationResult as unknown as jest.Mock).mockReturnValueOnce({
       isEmpty: () => true,
